@@ -1,7 +1,7 @@
 <script>
     export let paper_projects;
     export let toggleProject;
-    </script>
+</script>
 
 <aside>
     <h3>Select annotations to see:</h3>

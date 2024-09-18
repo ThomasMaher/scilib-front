@@ -3,15 +3,14 @@
 </script>
 
 <nav>
-    <a href='/'>Home</a>
-    <a href='/papers'>Papers</a>
-    <a href='/projects/'>Add a Project</a>
+    <a href='/'>Scilib</a>
 </nav>
 
 <slot></slot>
 
 <style>
-    a {
-        text-decoration: none;
+    nav {
+        font-weight: bold;
+        font-size: 28px;
     }
 </style>

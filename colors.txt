@@ -1,0 +1,9 @@
+Main colors
+#697791 (dark grey-blue. Header)
+#AABFE6 (middle grey-blue)
+#AADEE6 (light blue)
+
+#E6DFAA (Khaki-ish)
+#E6D3AA (beige-ish, projects folder color)
+
+#396066 (dark green)
