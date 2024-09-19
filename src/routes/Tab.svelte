@@ -1,10 +1,11 @@
 <script>
     export let title;
     export let color;
-    export let index;
+    export let border_bottom;
+    export let clicked;
 </script>
 
-<div class="tab" style="--color:{color};z-index:{index}">
+<div class="tab" style="--color:{color};--border_bottom:{border_bottom}" on:click={clicked}>
     <p>{title}</p>
 </div>
 
@@ -14,9 +15,8 @@
         border-radius: 5px 5px 0 0;
         height: 100%;
         width: 12%;
-        z-index: var(--index);
         border: solid black 1px;
-        border-bottom: none;
+        border-bottom: var(--border_bottom);
     }
 
     p {

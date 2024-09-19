@@ -7,6 +7,37 @@
     export let data;
 
     const colormap = ['#E6D3AA', '#cebd99', '#b9a987', '#a29475', '#9a8c6e']
+    export let current_tab, current_paper, current_color;
+    if(data.projects) {
+        current_tab = data.projects[0].id
+        current_paper = data.projects[0]
+        current_color = colormap[0]
+    }
+    function set_current_tab(project, color, i) {
+        bottom_borders = bottom_borders.map((_x => 'solid black 1px'))
+        if(!project) {
+          current_tab = null
+          current_paper = null
+          current_color = 'white'
+          bottom_borders[-1] = 'none'
+        } else {
+            if(project.id === current_tab) { return }
+
+            current_tab = project.id
+            current_paper = project
+            current_color = color
+            bottom_borders[i] = 'none'
+        }
+    }
+    let bottom_borders = data.projects.map(project => {
+        if(project.id === current_tab) {
+            return 'none'
+        } else {
+            return 'solid black 1px'
+        }
+    });
+    console.log(bottom_borders)
+    bottom_borders.push('solid black 1px') // for 'new project' tab
 </script>
 
 <div class="main">
@@ -16,35 +47,53 @@
         <div class="projects_body">
             <div class="projects_tabs">
                 {#if data.projects}
-                    {#each data.projects as project, i}
-                        <Tab title={project.title} color={colormap[i%colormap.length]} index={i*-1} />
+                    {#each data.projects as project, i (project.id) }
+                        <div
+                            class="tab"
+                            style="--color:{colormap[i%colormap.length]};border-bottom:{bottom_borders[i]}"
+                            on:click={() => set_current_tab(project, colormap[i%colormap.length], i)}
+                        >
+                            <p>{project.title}</p>
+                        </div>
+
                     {/each}
                 {/if}
 
-                <Tab title='Create New Project' color='white' index={-1*(1+colormap.length)} />
+                <Tab
+                    title='Create New Project'
+                    color='white'
+                    clicked={() => set_current_tab(null, 'white', -1)}
+                    border_bottom={'none'} />
             </div>
 
-            <div class="projects_face">
+            <div class="projects_face" style="--current_color:{current_color}">
+                {#if current_tab}
+                    <div class="project_face-header">
+                    </div>
+                    <div class="papers_list">
+                        <ul>
+                            {#each current_paper.papers as paper, i}
+                                <li><a href="/papers/{paper.id}">{paper.title}</a></li>
+                            {/each}
+                        </ul>
+                    </div>
+                {:else}
+                    Add a new project
+                {/if}
             </div>
         </div>
     </div>
-
-    <ul>
-        {#if data.projects}
-            {#each data.projects as project}
-                <li><a href="/projects/{project.id}" in:fly={{ y: 20 }} out:slide>
-                    {project.title}
-                </a></li>
-                <form method="POST" action="projects/?/delete" use:enhance>
-                    <input type="hidden" name="id" value={project.id} />
-                    <button value="Delete">Delete</button>
-                </form>
-            {/each}
-        {/if}
-    </ul>
 </div>
 
 <style>
+    ul {
+        list-style: none;
+    }
+
+    li {
+        padding-bottom: 24px;
+    }
+
     .main {
         text-align: center;
     }
@@ -66,7 +115,30 @@
     .projects_face {
         height: 500px;
         width: 850px;
-        background: #E6D3AA;
+        background: var(--current_color);
         border: solid black 1px;
     }
+
+    .projects_face-header {
+        hieght: 80px;
+    }
+
+    .papers_list {
+        text-align: left;
+    }
+
+    .tab {
+        background: var(--color);
+        border-radius: 5px 5px 0 0;
+        height: 100%;
+        width: 12%;
+        border: solid black 1px;
+    }
+
+    p {
+        margin-top: 6px;
+        margin-bottom: 0;
+        font-size: 12px;
+    }
+
 </style>
