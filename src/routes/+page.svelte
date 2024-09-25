@@ -1,10 +1,15 @@
 <script>
     import { enhance } from '$app/forms'
     import { fly, slide } from 'svelte/transition'
+    import { fail } from '@sveltejs/kit'
 
     import Tab from './Tab.svelte'
+    import {delete_project, create_project} from './landing_page_crud_funcs.js'
 
     export let data;
+    export let form;
+
+    let new_project_title = '';
 
     const colormap = ['#E6D3AA', '#cebd99', '#b9a987', '#a29475', '#9a8c6e']
     export let current_tab, current_paper, current_color;
@@ -36,7 +41,6 @@
             return 'solid black 1px'
         }
     });
-    console.log(bottom_borders)
     bottom_borders.push('solid black 1px') // for 'new project' tab
 </script>
 
@@ -69,16 +73,34 @@
             <div class="projects_face" style="--current_color:{current_color}">
                 {#if current_tab}
                     <div class="project_face-header">
+                        <div>Papers</div>
+                        <div class="remove_button" on:click={() => delete_project(current_tab)}>Remove Paper X</div>
                     </div>
                     <div class="papers_list">
                         <ul>
                             {#each current_paper.papers as paper, i}
-                                <li><a href="/papers/{paper.id}">{paper.title}</a></li>
+                                <li>
+                                    <a href="/papers/{paper.id}" title={paper.content}>
+                                        {paper.title} ({paper.year_published})
+                                    </a>
+                                    <p class="subtext">{paper.publisher}</p>
+                                </li>
                             {/each}
                         </ul>
                     </div>
                 {:else}
-                    Add a new project
+                    <div class="project_face-header">
+                        Add a new project
+                    </div>
+                    <div class="create_form">
+                        <input
+                            type="text"
+                            label="data"
+                            placeholder="Project title.."
+                            bind:value={new_project_title}
+                            />
+                        <input type="submit" on:click={() => create_project(new_project_title)} />
+                    </div>
                 {/if}
             </div>
         </div>
@@ -91,7 +113,13 @@
     }
 
     li {
-        padding-bottom: 24px;
+        padding-bottom: 18px;
+    }
+
+    a {
+        text-overflow: ellipsis;
+        text-decoration: underline;
+        color: #0d3888;
     }
 
     .main {
@@ -119,8 +147,20 @@
         border: solid black 1px;
     }
 
-    .projects_face-header {
-        hieght: 80px;
+    .project_face-header {
+        margin-top: 20px;
+        margin-bottom: 30px;
+        font-size: 35px;
+        text-align: left;
+        padding-left: 40px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .remove_button {
+        font-size: 16px;
+        margin-right: 20px;
+        cursor: pointer;
     }
 
     .papers_list {
@@ -133,6 +173,7 @@
         height: 100%;
         width: 12%;
         border: solid black 1px;
+        cursor: pointer;
     }
 
     p {

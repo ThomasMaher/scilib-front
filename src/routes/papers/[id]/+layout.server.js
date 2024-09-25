@@ -2,7 +2,6 @@ import { error } from '@sveltejs/kit'
 
 export async function load({ params }) {
     const response = await fetch(`http://localhost:3000/papers/${params.id}.json`)
-    console.log('HELLO')
     const result = await response.json()
     const { projects, unassigned_notes, ...paper } = result
 

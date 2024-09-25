@@ -2,7 +2,7 @@
     import { navigating } from '$app/stores'
 
     export let data;
-    </script>
+</script>
 
 <ul>
     {#if data.papers}

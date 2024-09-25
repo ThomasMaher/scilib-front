@@ -17,6 +17,7 @@
         width: 12%;
         border: solid black 1px;
         border-bottom: var(--border_bottom);
+        cursor: pointer;
     }
 
     p {

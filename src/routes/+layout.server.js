@@ -1,3 +1,5 @@
+import {fail} from "@sveltejs/kit";
+
 export async function load({ cookies }) {
     let projects;
 

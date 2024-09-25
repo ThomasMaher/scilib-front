@@ -25,7 +25,7 @@
                 await update();
                 creating = false
             }
-          }}>
+         }}>
         <label>
             Add Project:
             <input
