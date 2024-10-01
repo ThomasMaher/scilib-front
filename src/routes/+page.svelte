@@ -9,13 +9,14 @@
     export let data;
     export let form;
 
+    let projects = data.projects
     let new_project_title = '';
 
     const colormap = ['#E6D3AA', '#cebd99', '#b9a987', '#a29475', '#9a8c6e']
     export let current_tab, current_paper, current_color;
-    if(data.projects) {
-        current_tab = data.projects[0].id
-        current_paper = data.projects[0]
+    if(projects) {
+        current_tab = projects[0].id
+        current_paper = projects[0]
         current_color = colormap[0]
     }
     function set_current_tab(project, color, i) {
@@ -34,7 +35,7 @@
             bottom_borders[i] = 'none'
         }
     }
-    let bottom_borders = data.projects.map(project => {
+    let bottom_borders = projects.map(project => {
         if(project.id === current_tab) {
             return 'none'
         } else {
@@ -42,6 +43,13 @@
         }
     });
     bottom_borders.push('solid black 1px') // for 'new project' tab
+
+    async function delete_and_remove_project(id) {
+        let result = await delete_project(id)
+        console.log(result)
+        projects = result
+        console.log(projects)
+    }
 </script>
 
 <div class="main">
@@ -50,8 +58,8 @@
     <div class="projects">
         <div class="projects_body">
             <div class="projects_tabs">
-                {#if data.projects}
-                    {#each data.projects as project, i (project.id) }
+                {#if projects}
+                    {#each projects as project, i (project.id) }
                         <div
                             class="tab"
                             style="--color:{colormap[i%colormap.length]};border-bottom:{bottom_borders[i]}"
@@ -74,7 +82,7 @@
                 {#if current_tab}
                     <div class="project_face-header">
                         <div>Papers</div>
-                        <div class="remove_button" on:click={() => delete_project(current_tab)}>Remove Paper X</div>
+                        <div class="remove_button" on:click={() => projects = delete_and_remove_project(current_tab)}>Remove Project</div>
                     </div>
                     <div class="papers_list">
                         <ul>
@@ -161,6 +169,7 @@
         font-size: 16px;
         margin-right: 20px;
         cursor: pointer;
+        text-decoriation: underline;
     }
 
     .papers_list {
