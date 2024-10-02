@@ -7,48 +7,62 @@
     import {delete_project, create_project} from './landing_page_crud_funcs.js'
 
     export let data;
-    export let form;
 
-    let projects = data.projects
     let new_project_title = '';
 
     const colormap = ['#E6D3AA', '#cebd99', '#b9a987', '#a29475', '#9a8c6e']
-    export let current_tab, current_paper, current_color;
-    if(projects) {
+    const border_setting = 'solid black 1px'
+    let current_tab, current_project;
+    let projects = [];
+    if(data.projects) {
+        data.projects.forEach((project, i) => {
+            projects.push({ ...project, 'color': colormap[i%colormap.length], 'bottom_border': border_setting })
+        })
         current_tab = projects[0].id
-        current_paper = projects[0]
-        current_color = colormap[0]
+        current_project = projects[0]
+        current_project['bottom_border'] = 'none'
     }
-    function set_current_tab(project, color, i) {
-        bottom_borders = bottom_borders.map((_x => 'solid black 1px'))
+    projects = projects
+
+    function set_current_tab(project) {
         if(!project) {
           current_tab = null
-          current_paper = null
-          current_color = 'white'
-          bottom_borders[-1] = 'none'
+          current_project = null
         } else {
             if(project.id === current_tab) { return }
 
+            if(current_project) { current_project['bottom_border'] = border_setting }
+            project['bottom_border'] = 'none'
             current_tab = project.id
-            current_paper = project
-            current_color = color
-            bottom_borders[i] = 'none'
+            current_project = project
         }
+        projects = projects
     }
-    let bottom_borders = projects.map(project => {
-        if(project.id === current_tab) {
-            return 'none'
-        } else {
-            return 'solid black 1px'
-        }
-    });
-    bottom_borders.push('solid black 1px') // for 'new project' tab
 
-    async function delete_and_remove_project(id) {
-        let result = await delete_project(id)
-        console.log(result)
-        projects = result
-        console.log(projects)
+    function delete_and_remove_project(id) {
+        let new_projects = []
+        delete_project(id).then(result => {
+            result.projects.forEach((project, i) => {
+                new_projects.push({ ...project, 'color': colormap[i%colormap.length], 'bottom_border': border_setting })
+            })
+            projects = new_projects
+            current_tab = projects[0].id
+            current_project = projects[0]
+            current_project['bottom_border'] = 'none'
+        })
+    }
+
+    function create_project_and_set(new_project_title) {
+        let new_projects = []
+        create_project(new_project_title).then(result => {
+            result.projects.forEach((project, i) => {
+                new_projects.push({ ...project, 'color': colormap[i%colormap.length], 'bottom_border': border_setting })
+            })
+            projects = new_projects
+            current_tab = projects[projects.length-1].id
+            current_project = projects[projects.length-1]
+            current_project['bottom_border'] = 'none'
+        })
     }
 </script>
 
@@ -62,8 +76,8 @@
                     {#each projects as project, i (project.id) }
                         <div
                             class="tab"
-                            style="--color:{colormap[i%colormap.length]};border-bottom:{bottom_borders[i]}"
-                            on:click={() => set_current_tab(project, colormap[i%colormap.length], i)}
+                            style="--color:{project['color']};border-bottom:{project['bottom_border']}"
+                            on:click={() => set_current_tab(project)}
                         >
                             <p>{project.title}</p>
                         </div>
@@ -74,19 +88,23 @@
                 <Tab
                     title='Create New Project'
                     color='white'
-                    clicked={() => set_current_tab(null, 'white', -1)}
+                    clicked={() => set_current_tab(null)}
                     border_bottom={'none'} />
             </div>
 
-            <div class="projects_face" style="--current_color:{current_color}">
-                {#if current_tab}
+            {#if current_tab}
+                <div class="projects_face" style="--current_color:{current_project['color']}">
                     <div class="project_face-header">
                         <div>Papers</div>
-                        <div class="remove_button" on:click={() => projects = delete_and_remove_project(current_tab)}>Remove Project</div>
+                        <div
+                            class="remove_button"
+                            on:click={() => delete_and_remove_project(current_tab)}>
+                            Remove Project
+                        </div>
                     </div>
                     <div class="papers_list">
                         <ul>
-                            {#each current_paper.papers as paper, i}
+                            {#each current_project.papers as paper, i}
                                 <li>
                                     <a href="/papers/{paper.id}" title={paper.content}>
                                         {paper.title} ({paper.year_published})
@@ -96,7 +114,9 @@
                             {/each}
                         </ul>
                     </div>
-                {:else}
+                </div>
+            {:else}
+                <div class="projects_face" style="--current_color:white">
                     <div class="project_face-header">
                         Add a new project
                     </div>
@@ -107,10 +127,10 @@
                             placeholder="Project title.."
                             bind:value={new_project_title}
                             />
-                        <input type="submit" on:click={() => create_project(new_project_title)} />
+                        <input type="submit" on:click={() => create_project_and_set(new_project_title)} />
                     </div>
-                {/if}
-            </div>
+               </div>
+            {/if}
         </div>
     </div>
 </div>

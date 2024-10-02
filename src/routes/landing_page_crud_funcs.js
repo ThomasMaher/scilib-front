@@ -16,18 +16,7 @@ export async function create_project(title) {
         body: JSON.stringify({project: {title: title}}),
         headers: {'Content-type': 'application/json'}
     })
-    redirect(200, '/')
-    // try {
-    //     const response = await fetch('http://localhost:3000/projects.json', {
-    //         method: 'POST',
-    //         body: JSON.stringify({project: {title: title}}),
-    //         headers: {'Content-type': 'application/json'}
-    //     })
-    //     redirect(201, '/')
-    // } catch (error) {
-    //     return fail(422, {
-    //         error: error.error
-    //     })
-    // }
-    // throw redirect(303, '/')
+    let projects = await response.json()
+
+    return { projects }
 }
